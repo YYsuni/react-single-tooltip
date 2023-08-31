@@ -1,6 +1,7 @@
+import './style.css'
+
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { getScrollParent, isMobile } from './utils'
-import { ReactComponent as PointerSVG } from './svgs/pointer.svg'
 
 const mobile = isMobile()
 
@@ -19,15 +20,27 @@ const initConfig = () => ({
 
 const control = initConfig()
 
-export default function SingleTooltip() {
+interface Props {
+	backgroundColor?: string
+	zIndex?: number
+	borderRadius?: number
+	offset?: number | string
+}
+
+export default function SingleTooltip({
+	backgroundColor = 'rgba(0, 0, 0, 0.8)',
+	zIndex = 99,
+	borderRadius = 12,
+	offset = 4
+}: Props) {
 	const [text, setText] = useState('')
 	const textRef = useRef<HTMLDivElement>(null)
 
 	const [style, _setStyle] = useState<React.CSSProperties>({ display: 'none' })
 	const [style_amend, setStyle_amend] = useState<React.CSSProperties>({ display: 'none' })
 
-	const [textStyle, setTextStyle] = useState<React.CSSProperties>()
-	const [pointerStyle, setPointerStyle] = useState<React.CSSProperties>()
+	const [textStyle, setTextStyle] = useState<React.CSSProperties>({})
+	const [pointerStyle, setPointerStyle] = useState<React.CSSProperties>({})
 
 	useEffect(() => {
 		if (control.init) reportError('SingleTooltip can only be initialized once!')
@@ -48,10 +61,10 @@ export default function SingleTooltip() {
 	}, [])
 
 	useLayoutEffect(() => {
-		if (style.display !== 'none') {
+		if (style.display !== 'none' && control.current) {
 			const { x, y, right, width } = textRef.current!.getBoundingClientRect()
 
-			const SAFE_WIDTH = width - 2 * 12
+			const SAFE_WIDTH = width - 2 * borderRadius
 			const SAFE_OFFSET_X = SAFE_WIDTH / 2 - 10
 
 			const overflowWidth = right - window.innerWidth
@@ -62,7 +75,7 @@ export default function SingleTooltip() {
 				x: sourceX,
 				height: sourceHeight,
 				width: sourceWidth
-			} = control.current!.getBoundingClientRect()
+			} = control.current.getBoundingClientRect()
 
 			let newStyle: React.CSSProperties | null = null
 			let newTextStyle: React.CSSProperties | null = null
@@ -86,7 +99,7 @@ export default function SingleTooltip() {
 						top: sourceY + sourceHeight / 2,
 						left: sourceX + sourceWidth
 					}
-					newPointerStyle = { transform: 'rotate(90deg)', marginRight: -7 }
+					newPointerStyle = { transform: 'rotate(90deg)', margin: '0 6.5px' }
 				} else {
 					newTextStyle = { left: -x }
 				}
@@ -98,7 +111,7 @@ export default function SingleTooltip() {
 						top: sourceY + sourceHeight / 2,
 						right: window.innerWidth - sourceX
 					}
-					newPointerStyle = { transform: 'rotate(-90deg)', marginLeft: -7 }
+					newPointerStyle = { transform: 'rotate(-90deg)', margin: '0 6.5px' }
 				} else {
 					newTextStyle = { right: overflowWidth }
 				}
@@ -111,11 +124,23 @@ export default function SingleTooltip() {
 	}, [style])
 
 	return (
-		<div className='single-tooltip' style={Object.assign(style_amend, { zIndex: 60 })}>
-			<div ref={textRef} style={textStyle || undefined} className='single-tooltip--text'>
+		<div className='single-tooltip' style={{ ...style_amend, zIndex, position: 'fixed', padding: offset }}>
+			<div ref={textRef} style={{ ...textStyle, backgroundColor, borderRadius }} className='single-tooltip--text'>
 				{text}
 			</div>
-			<PointerSVG className='single-tooltip--pointer' style={pointerStyle || undefined} />
+			<svg
+				className='single-tooltip--pointer'
+				width='20'
+				height='7'
+				viewBox='0 0 20 7'
+				style={pointerStyle}
+				fill='none'
+				xmlns='http://www.w3.org/2000/svg'>
+				<path
+					fill={backgroundColor}
+					d='M5.7021 4.56168C7.41751 5.93401 8.27522 6.62017 9.24878 6.80633C9.7451 6.90123 10.2549 6.90123 10.7512 6.80633C11.7248 6.62017 12.5825 5.93401 14.2979 4.56168L20 0H0L5.7021 4.56168Z'
+				/>
+			</svg>
 		</div>
 	)
 }
@@ -134,7 +159,7 @@ const scrollHandler = () => {
 
 		control.setTextStyle({})
 		control.setPointerStyle({})
-		control.setStyle({ display: 'block', bottom: window.innerHeight - y + 4, left: width / 2 + x })
+		control.setStyle({ display: 'block', bottom: window.innerHeight - y, left: width / 2 + x })
 	}
 }
 
@@ -162,19 +187,19 @@ AddScrollListener(window)
 export function useTooltip(ref: React.RefObject<HTMLElement | SVGSVGElement>, text: string, show = true) {
 	useEffect(() => {
 		if (ref.current && show) {
+			const element = ref.current
+
 			const mouseenterHandler = () => {
 				control.setTextStyle({})
 				control.setPointerStyle({})
 				control.setText(text)
 				control.hover = true
-				control.current = ref.current
+				control.current = element
 
-				const { y, x, width } = ref.current!.getBoundingClientRect()
+				const { y, x, width } = element!.getBoundingClientRect()
 
-				control.setStyle({ display: 'block', bottom: window.innerHeight - y + 4, left: width / 2 + x })
+				control.setStyle({ display: 'block', bottom: window.innerHeight - y, left: width / 2 + x })
 			}
-
-			const element = ref.current
 
 			const clickHandler = () => {
 				if (control.current === null || control.current !== element) {

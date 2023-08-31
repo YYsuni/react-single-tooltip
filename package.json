@@ -1,6 +1,6 @@
 {
   "name": "react-single-tooltip",
-  "version": "0.0.0",
+  "version": "0.0.1-canary.0",
   "type": "module",
   "description": "Tooltip react component, singleton. min and smart.",
   "main": "dist/cjs/index.cjs",
@@ -8,6 +8,7 @@
   "module": "dist/es/index.mjs",
   "brower": "dist/es/index.mjs",
   "scripts": {
+    "dev": "vite",
     "prepare": "husky install",
     "prebuild": "npm run clean",
     "build": "rollup -c",
@@ -30,6 +31,7 @@
     "@types/node": "^18.11.18",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.8",
+    "@vitejs/plugin-react": "^4.0.4",
     "autoprefixer": "^10.4.14",
     "husky": "^8.0.3",
     "lint-staged": "^13.1.0",
@@ -38,12 +40,15 @@
     "prettier": "^2.8.2",
     "prettier-plugin-tailwindcss": "^0.2.7",
     "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "rollup": "^3.9.1",
+    "rollup-plugin-css-only": "^4.3.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-typescript2": "^0.34.1",
     "storybook": "^7.3.2",
     "tailwindcss": "^3.3.2",
     "typescript": "^5.0.4",
+    "vite": "^4.4.9",
     "vite-plugin-svgr": "^3.2.0"
   },
   "repository": {
