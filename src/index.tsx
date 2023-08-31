@@ -111,14 +111,11 @@ export default function SingleTooltip() {
 	}, [style])
 
 	return (
-		<div className='fixed z-[60] flex -translate-x-1/2' style={style_amend}>
-			<div
-				ref={textRef}
-				style={textStyle || undefined}
-				className='bg-text relative w-max max-w-[360px] whitespace-normal break-all rounded-xl p-3 text-xs font-semibold text-white max-sm:max-w-[200px]'>
+		<div className='single-tooltip' style={Object.assign(style_amend, { zIndex: 60 })}>
+			<div ref={textRef} style={textStyle || undefined} className='single-tooltip--text'>
 				{text}
 			</div>
-			<PointerSVG className='mx-auto' style={pointerStyle || undefined} />
+			<PointerSVG className='single-tooltip--pointer' style={pointerStyle || undefined} />
 		</div>
 	)
 }

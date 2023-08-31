@@ -1,0 +1,29 @@
+.single-tooltip {
+	position: fixed;
+	display: flex;
+	transform: translate(-50%);
+	gap: -1px;
+}
+
+.single-tooltip--text {
+	background-color: rgba(0, 0, 0, 0.4);
+	width: max-content;
+	max-width: 360px;
+	white-space: normal;
+	word-break: break-all;
+	border-radius: 0.75rem;
+	padding: 0.75rem;
+	font-size: 0.75rem;
+	line-height: 1rem;
+	color: white;
+}
+
+@media (max-width: 640px) {
+	.single-tooltip--text {
+		max-width: 200px;
+	}
+}
+
+.single-tooltip--pointer {
+	margin: 0 auto;
+}
