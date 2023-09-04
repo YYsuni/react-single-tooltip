@@ -5,12 +5,13 @@ react-single-tooltip is a opinionated tooltip component. It uses no dependencies
 To start using the library, install it in your project:
 
 ```bash
-npm install react-single-tooltip
+# Work in progress
+# npm install react-single-tooltip
 # pnpm i react-single-tooltip
 # yarn i react-single-tooltip
 
 # canary
-# or npm i react-single-tooltip@canary
+npm i react-single-tooltip@canary
 # or pnpm i react-single-tooltip@canary
 # or yarn i react-single-tooltip@canary
 ```
@@ -19,14 +20,10 @@ Add `<SingleTooltip />` to your app, it will be the place where all your tooltip
 After that you can use `useTooltip()` hook in your component.
 
 ```jsx
-import SingleTooltip, { useTooltip } from 'react-single-tooltip';
-import { useRef } from 'react'
-
-// ...
+import { useTooltipRef, SingleTooltip } from 'react-single-tooltip';
 
 function App() {
-  const ref = useRef(null)
-  useTooltip(ref, "Tooltip content")
+  const ref = useTooltipRef("Tooltip content")
   
   return (
     <div>
@@ -53,5 +50,5 @@ function App() {
 You can dynamically show/hide the tooltip.
 
 ```ts
-useTooltip(ref: React.RefObject<HTMLElement | SVGSVGElement>, text: string, show = true)
+useTooltip(text: string, show = true)
 ```
