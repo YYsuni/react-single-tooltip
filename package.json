@@ -8,7 +8,7 @@
   "module": "dist/index.js",
   "brower": "dist/index.js",
   "scripts": {
-    "dev": "tsup src/index.tsx --watch",
+    "dev": "vite",
     "prepare": "husky install",
     "prebuild": "npm run clean",
     "build": "tsup src/index.tsx",
@@ -24,6 +24,7 @@
     "react": ">=16.8.0"
   },
   "devDependencies": {
+    "@headlessui/react": "^1.7.17",
     "@types/node": "^18.11.18",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.8",

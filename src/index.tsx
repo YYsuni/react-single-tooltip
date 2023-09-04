@@ -1,6 +1,6 @@
 import './style.css'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { getScrollParent, isMobile } from './utils'
 
 const mobile = isMobile()
@@ -27,12 +27,7 @@ interface Props {
 	offset?: number | string
 }
 
-export default function SingleTooltip({
-	backgroundColor = 'rgba(0, 0, 0, 0.8)',
-	zIndex = 99,
-	borderRadius = 12,
-	offset = 4
-}: Props) {
+function SingleTooltip({ backgroundColor = 'rgba(0, 0, 0, 0.8)', zIndex = 99, borderRadius = 12, offset = 4 }: Props) {
 	const [text, setText] = useState('')
 	const textRef = useRef<HTMLDivElement>(null)
 
@@ -184,60 +179,98 @@ function RemoveScrollListener(element: HTMLElement) {
 }
 AddScrollListener(window)
 
-export function useTooltip(ref: React.RefObject<HTMLElement | SVGSVGElement>, text: string, show = true) {
-	useEffect(() => {
-		if (ref.current && show) {
-			const element = ref.current
-
-			const mouseenterHandler = () => {
-				control.setTextStyle({})
-				control.setPointerStyle({})
-				control.setText(text)
-				control.hover = true
-				control.current = element
-
-				const { y, x, width } = element!.getBoundingClientRect()
-
-				control.setStyle({ display: 'block', bottom: window.innerHeight - y, left: width / 2 + x })
-			}
-
-			const clickHandler = () => {
-				if (control.current === null || control.current !== element) {
-					mouseenterHandler()
-
-					setTimeout(() =>
-						window.addEventListener('click', () => control.current === element && mouseleaveHandler(), { once: true })
-					)
+function useTooltipRef<T extends HTMLElement | SVGSVGElement>(text: string, show = true) {
+	const ref = useRef<T>(null)
+	const setRef = useCallback(
+		(element: HTMLElement | SVGSVGElement | null) => {
+			if (ref.current) {
+				// @ts-ignore
+				if (typeof ref.current._st_clear === 'function') {
+					// @ts-ignore
+					ref.current._st_clear()
+					// @ts-ignore
+					delete ref.current._st_clear
 				}
 			}
 
-			if (mobile) {
-				element.addEventListener('click', clickHandler)
-			} else {
-				element.addEventListener('mouseenter', mouseenterHandler)
-				element.addEventListener('mouseleave', mouseleaveHandler)
-			}
+			if (element && show) {
+				const mouseenterHandler = () => {
+					control.setTextStyle({})
+					control.setPointerStyle({})
+					control.setText(text)
+					control.hover = true
+					control.current = element
 
-			const tooltipScrollParent = getScrollParent(element)
+					const { y, x, width } = element!.getBoundingClientRect()
 
-			if (tooltipScrollParent) {
-				AddScrollListener(tooltipScrollParent)
-			}
+					control.setStyle({ display: 'block', bottom: window.innerHeight - y, left: width / 2 + x })
+				}
 
-			return () => {
+				const clickHandler = () => {
+					if (control.current === null || control.current !== element) {
+						mouseenterHandler()
+
+						setTimeout(() =>
+							window.addEventListener('click', () => control.current === element && mouseleaveHandler(), { once: true })
+						)
+					}
+				}
+
 				if (mobile) {
-					element.removeEventListener('click', clickHandler)
+					element.addEventListener('click', clickHandler)
 				} else {
-					element.removeEventListener('mouseenter', mouseenterHandler)
-					element.removeEventListener('mouseleave', mouseleaveHandler)
+					element.addEventListener('mouseenter', mouseenterHandler)
+					element.addEventListener('mouseleave', mouseleaveHandler)
 				}
+
+				const tooltipScrollParent = getScrollParent(element)
 
 				if (tooltipScrollParent) {
-					RemoveScrollListener(tooltipScrollParent)
+					AddScrollListener(tooltipScrollParent)
 				}
 
-				if (control.current === element) mouseleaveHandler()
+				const clear = () => {
+					if (mobile) {
+						element.removeEventListener('click', clickHandler)
+					} else {
+						element.removeEventListener('mouseenter', mouseenterHandler)
+						element.removeEventListener('mouseleave', mouseleaveHandler)
+					}
+
+					if (tooltipScrollParent) {
+						RemoveScrollListener(tooltipScrollParent)
+					}
+
+					if (control.current === element) mouseleaveHandler()
+				}
+
+				// @ts-ignore
+				element._st_clear = clear
 			}
+
+			// @ts-ignore
+			ref.current = element
+		},
+		[show]
+	)
+
+	return new Proxy(setRef, {
+		get(target, prop, receiver) {
+			if (prop === 'current') {
+				return ref.current
+			}
+
+			return Reflect.get(target, prop, receiver)
+		},
+		set(target, prop, value, receiver) {
+			if (prop === 'current') {
+				// @ts-ignore
+				ref.current = value
+			}
+
+			return Reflect.set(target, prop, value, receiver)
 		}
-	}, [ref.current, show])
+	})
 }
+
+export { SingleTooltip, useTooltipRef, SingleTooltip as default }

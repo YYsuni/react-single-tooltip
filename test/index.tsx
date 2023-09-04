@@ -1,28 +1,29 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './style.css'
 
-import SingleTooltip, { useTooltip } from '../src/index'
+import { useTooltipRef, SingleTooltip } from '../src/index'
+import NormalDialog from './normal-dialog'
 
 function App() {
-	const ref = useRef<HTMLButtonElement>(null)
-	const ref2 = useRef<HTMLButtonElement>(null)
-	const ref3 = useRef<HTMLButtonElement>(null)
-	const ref4 = useRef<HTMLButtonElement>(null)
-	const ref5 = useRef<HTMLButtonElement>(null)
+	const ref = useTooltipRef('Hello!')
+	const ref2 = useTooltipRef('Hello! Here is left-top')
+	const ref3 = useTooltipRef('Hello! Here is right-top')
+	const ref4 = useTooltipRef('Hello! Here is left-bottom')
+	const ref5 = useTooltipRef('Hello! Here is right-bottom')
 
-	useTooltip(ref, 'Hello!')
-	useTooltip(ref2, 'Hello! Here is left-top')
-	useTooltip(ref3, 'Hello! Here is right-top')
-	useTooltip(ref4, 'Hello! Here is left-bottom')
-	useTooltip(ref5, 'Hello! Here is right-bottom')
+	const [open, setOpen] = useState(false)
 
 	return (
 		<>
 			<SingleTooltip />
 
 			<div className='flex h-[100vh] flex-col items-center justify-center bg-gradient-to-b from-sky-50 to-white'>
-				<h1 className='text-2xl font-medium'>Single Tooltip</h1>
+				<button
+					onClick={() => setOpen(true)}
+					className='rounded bg-slate-500 px-4 py-2 font-semibold text-white shadow'>
+					Open Dialog
+				</button>
 
 				<div className='mt-3 h-[400px] w-full max-w-[600px] snap-both overflow-auto rounded-lg border bg-white shadow-inner'>
 					<div className='flex h-full w-[800px] items-center justify-center'>
@@ -53,6 +54,8 @@ function App() {
 					Hover me
 				</button>
 			</div>
+
+			<NormalDialog open={open} setOpen={setOpen} />
 		</>
 	)
 }
