@@ -220,6 +220,8 @@ function useTooltipRef<T extends HTMLElement | SVGSVGElement>(text: string, show
 	const ref = useRef<T>(null)
 	const setRef = useCallback(
 		(element: HTMLElement | SVGSVGElement | null) => {
+			if (element === ref.current) return
+
 			if (ref.current) {
 				const oldElement = ref.current as T & { _st_clear?: () => void }
 				if (typeof oldElement._st_clear === 'function') {
@@ -241,6 +243,8 @@ function useTooltipRef<T extends HTMLElement | SVGSVGElement>(text: string, show
 					control.setStyle({ bottom: window.innerHeight - y, left: width / 2 + x })
 					control.setPointerStyle({ marginTop: SPACING })
 				}
+
+				// ToDo: Activate tooltip if cursor hovers over the element now.
 
 				const clickHandler = () => {
 					if (control.current === null || control.current !== element) {
@@ -287,7 +291,7 @@ function useTooltipRef<T extends HTMLElement | SVGSVGElement>(text: string, show
 			// @ts-ignore
 			ref.current = element
 		},
-		[show]
+		[text, show]
 	)
 
 	return new Proxy(setRef, {

@@ -6,7 +6,10 @@ import { useTooltipRef, SingleTooltip } from '../src/index'
 import NormalDialog from './normal-dialog'
 
 function App() {
+	const [text, setText] = useState('This is the first message.')
+
 	const ref = useTooltipRef('Hello!')
+	const ref1 = useTooltipRef(text)
 	const ref2 = useTooltipRef('Hello! Here is left-top')
 	const ref3 = useTooltipRef('Hello! Here is right-top')
 	const ref4 = useTooltipRef('Hello! Here is left-bottom')
@@ -18,11 +21,17 @@ function App() {
 		<>
 			<SingleTooltip />
 
-			<div className='flex h-[100vh] flex-col items-center justify-center bg-gradient-to-b from-sky-50 to-white'>
+			<div className='flex h-[100vh] flex-col items-center justify-center gap-2 bg-gradient-to-b from-sky-50 to-white'>
 				<button
 					onClick={() => setOpen(true)}
 					className='rounded bg-slate-500 px-4 py-2 font-semibold text-white shadow'>
 					Open Dialog
+				</button>
+				<button
+					ref={ref1}
+					onClick={() => setText('This is the second message.')}
+					className='rounded bg-slate-500 px-4 py-2 font-semibold text-white shadow'>
+					Toggle
 				</button>
 
 				<div className='mt-3 h-[400px] w-full max-w-[600px] snap-both overflow-auto rounded-lg border bg-white shadow-inner'>
