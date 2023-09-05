@@ -4,6 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { getScrollParent, isMobile } from './utils'
 
 const mobile = isMobile()
+const SPACING = -0.3
 
 const initConfig = () => ({
 	setStyle: (_: React.CSSProperties) => {
@@ -22,12 +23,29 @@ const control = initConfig()
 
 interface Props {
 	backgroundColor?: string
+	padding?: string | number
+	fontSize?: string | number
+	maxWidth?: string | number
+	color?: string
 	zIndex?: number
 	borderRadius?: number
 	offset?: number | string
+	trangleWidth?: number
+	trangleHeight?: number
 }
 
-function SingleTooltip({ backgroundColor = 'rgba(0, 0, 0, 0.8)', zIndex = 99, borderRadius = 12, offset = 4 }: Props) {
+function SingleTooltip({
+	backgroundColor = 'rgba(0, 0, 0, 0.8)',
+	zIndex = 99,
+	borderRadius = 12,
+	offset = 4,
+	padding = 12,
+	fontSize = 14,
+	color = 'white',
+	maxWidth,
+	trangleWidth = 16,
+	trangleHeight = 6
+}: Props) {
 	const [text, setText] = useState('')
 	const textRef = useRef<HTMLDivElement>(null)
 
@@ -82,7 +100,7 @@ function SingleTooltip({ backgroundColor = 'rgba(0, 0, 0, 0.8)', zIndex = 99, bo
 					top: sourceY + sourceHeight,
 					left: sourceX + sourceWidth / 2
 				}
-				newPointerStyle = { transform: 'rotate(180deg)' }
+				newPointerStyle = { transform: 'rotate(180deg)', marginBottom: SPACING }
 			}
 
 			if (x < 0) {
@@ -94,19 +112,28 @@ function SingleTooltip({ backgroundColor = 'rgba(0, 0, 0, 0.8)', zIndex = 99, bo
 						top: sourceY + sourceHeight / 2,
 						left: sourceX + sourceWidth
 					}
-					newPointerStyle = { transform: 'rotate(90deg)', margin: '0 6.5px' }
+					newPointerStyle = {
+						transform: 'rotate(90deg)',
+						margin: `0 ${(trangleHeight - trangleWidth) / 2}px`,
+						marginRight: (trangleHeight - trangleWidth) / 2 + SPACING
+					}
 				} else {
 					newTextStyle = { left: -x }
 				}
 			} else if (overflowWidth > 0) {
 				if (overflowWidth > SAFE_OFFSET_X) {
 					newStyle = {
+						flexDirection: 'row',
 						alignItems: 'center',
 						transform: 'translate(0,-50%)',
 						top: sourceY + sourceHeight / 2,
 						right: window.innerWidth - sourceX
 					}
-					newPointerStyle = { transform: 'rotate(-90deg)', margin: '0 6.5px' }
+					newPointerStyle = {
+						transform: 'rotate(-90deg)',
+						margin: `0 ${(trangleHeight - trangleWidth) / 2}px`,
+						marginLeft: (trangleHeight - trangleWidth) / 2 + SPACING
+					}
 				} else {
 					newTextStyle = { right: overflowWidth }
 				}
@@ -120,20 +147,25 @@ function SingleTooltip({ backgroundColor = 'rgba(0, 0, 0, 0.8)', zIndex = 99, bo
 
 	return (
 		<div className='single-tooltip' style={{ ...style_amend, zIndex, position: 'fixed', padding: offset }}>
-			<div ref={textRef} style={{ ...textStyle, backgroundColor, borderRadius }} className='single-tooltip--text'>
+			<div
+				ref={textRef}
+				style={{ ...textStyle, backgroundColor, borderRadius, padding, fontSize, color, maxWidth }}
+				className='single-tooltip--text'>
 				{text}
 			</div>
 			<svg
 				className='single-tooltip--pointer'
-				width='20'
-				height='7'
-				viewBox='0 0 20 7'
+				width={trangleWidth}
+				height={trangleHeight}
+				viewBox={`0 0 ${trangleWidth} ${trangleHeight}`}
 				style={pointerStyle}
 				fill='none'
 				xmlns='http://www.w3.org/2000/svg'>
 				<path
+					d={`M0 0C${((trangleWidth / 2) * 6.5) / 6} ${(trangleHeight * 6.5) / 6},${((trangleWidth / 2) * 5.5) / 6} ${
+						(trangleHeight * 6.5) / 6
+					},${trangleWidth} 0Z`}
 					fill={backgroundColor}
-					d='M5.7021 4.56168C7.41751 5.93401 8.27522 6.62017 9.24878 6.80633C9.7451 6.90123 10.2549 6.90123 10.7512 6.80633C11.7248 6.62017 12.5825 5.93401 14.2979 4.56168L20 0H0L5.7021 4.56168Z'
 				/>
 			</svg>
 		</div>
@@ -154,7 +186,7 @@ const scrollHandler = () => {
 
 		control.setTextStyle({})
 		control.setPointerStyle({})
-		control.setStyle({ display: 'block', bottom: window.innerHeight - y, left: width / 2 + x })
+		control.setStyle({ bottom: window.innerHeight - y, left: width / 2 + x })
 	}
 }
 
@@ -184,12 +216,10 @@ function useTooltipRef<T extends HTMLElement | SVGSVGElement>(text: string, show
 	const setRef = useCallback(
 		(element: HTMLElement | SVGSVGElement | null) => {
 			if (ref.current) {
-				// @ts-ignore
-				if (typeof ref.current._st_clear === 'function') {
-					// @ts-ignore
-					ref.current._st_clear()
-					// @ts-ignore
-					delete ref.current._st_clear
+				const oldElement = ref.current as T & { _st_clear?: () => void }
+				if (typeof oldElement._st_clear === 'function') {
+					oldElement._st_clear()
+					delete oldElement._st_clear
 				}
 			}
 
@@ -203,7 +233,8 @@ function useTooltipRef<T extends HTMLElement | SVGSVGElement>(text: string, show
 
 					const { y, x, width } = element!.getBoundingClientRect()
 
-					control.setStyle({ display: 'block', bottom: window.innerHeight - y, left: width / 2 + x })
+					control.setStyle({ bottom: window.innerHeight - y, left: width / 2 + x })
+					control.setPointerStyle({ marginTop: SPACING })
 				}
 
 				const clickHandler = () => {

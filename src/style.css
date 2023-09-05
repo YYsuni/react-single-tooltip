@@ -1,9 +1,8 @@
 .single-tooltip {
-	pointer-events: none;
 	position: fixed;
 	display: flex;
 	transform: translate(-50%);
-	gap: -1px;
+	flex-direction: column;
 }
 
 .single-tooltip--text {
@@ -12,9 +11,6 @@
 	max-width: 360px;
 	white-space: normal;
 	word-break: break-all;
-	padding: 0.75rem;
-	font-size: 0.75rem;
-	color: white;
 }
 
 @media (max-width: 640px) {
