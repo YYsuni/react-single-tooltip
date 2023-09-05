@@ -211,6 +211,11 @@ function RemoveScrollListener(element: HTMLElement) {
 }
 AddScrollListener(window)
 
+interface TooltipRef<T> {
+	(element: T | null): void
+	current: T | null
+}
+
 function useTooltipRef<T extends HTMLElement | SVGSVGElement>(text: string, show = true) {
 	const ref = useRef<T>(null)
 	const setRef = useCallback(
@@ -301,7 +306,7 @@ function useTooltipRef<T extends HTMLElement | SVGSVGElement>(text: string, show
 
 			return Reflect.set(target, prop, value, receiver)
 		}
-	})
+	}) as TooltipRef<T>
 }
 
 export { SingleTooltip, useTooltipRef, SingleTooltip as default }
