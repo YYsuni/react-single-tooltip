@@ -219,98 +219,103 @@ interface TooltipRef<T> {
 function useTooltipRef<T extends HTMLElement | SVGSVGElement>(text: string, show = true) {
 	const ref = useRef<T>(null)
 	const setRef = useCallback(
-		(element: HTMLElement | SVGSVGElement | null) => {
-			if (element === ref.current) return
+		new Proxy(
+			(element: HTMLElement | SVGSVGElement | null) => {
+				if (element === ref.current) return
 
-			if (ref.current) {
-				const oldElement = ref.current as T & { _st_clear?: () => void }
-				if (typeof oldElement._st_clear === 'function') {
-					oldElement._st_clear()
-					delete oldElement._st_clear
-				}
-			}
-
-			if (element && show) {
-				const mouseenterHandler = () => {
-					control.setTextStyle({})
-					control.setPointerStyle({})
-					control.setText(text)
-					control.hover = true
-					control.current = element
-
-					const { y, x, width } = element!.getBoundingClientRect()
-
-					control.setStyle({ bottom: window.innerHeight - y, left: width / 2 + x })
-					control.setPointerStyle({ marginTop: SPACING })
-				}
-
-				// ToDo: Activate tooltip if cursor hovers over the element now.
-
-				const clickHandler = () => {
-					if (control.current === null || control.current !== element) {
-						mouseenterHandler()
-
-						setTimeout(() =>
-							window.addEventListener('click', () => control.current === element && mouseleaveHandler(), { once: true })
-						)
+				if (ref.current) {
+					const oldElement = ref.current as T & { _st_clear?: () => void }
+					if (typeof oldElement._st_clear === 'function') {
+						oldElement._st_clear()
+						delete oldElement._st_clear
 					}
 				}
 
-				if (mobile) {
-					element.addEventListener('click', clickHandler)
-				} else {
-					element.addEventListener('mouseenter', mouseenterHandler)
-					element.addEventListener('mouseleave', mouseleaveHandler)
-				}
+				if (element && show) {
+					const mouseenterHandler = () => {
+						control.setTextStyle({})
+						control.setPointerStyle({})
+						control.setText(text)
+						control.hover = true
+						control.current = element
 
-				const tooltipScrollParent = getScrollParent(element)
+						const { y, x, width } = element!.getBoundingClientRect()
 
-				if (tooltipScrollParent) {
-					AddScrollListener(tooltipScrollParent)
-				}
+						control.setStyle({ bottom: window.innerHeight - y, left: width / 2 + x })
+						control.setPointerStyle({ marginTop: SPACING })
+					}
 
-				const clear = () => {
+					// ToDo: Activate tooltip if cursor hovers over the element now.
+
+					const clickHandler = () => {
+						if (control.current === null || control.current !== element) {
+							mouseenterHandler()
+
+							setTimeout(() =>
+								window.addEventListener('click', () => control.current === element && mouseleaveHandler(), {
+									once: true
+								})
+							)
+						}
+					}
+
 					if (mobile) {
-						element.removeEventListener('click', clickHandler)
+						element.addEventListener('click', clickHandler)
 					} else {
-						element.removeEventListener('mouseenter', mouseenterHandler)
-						element.removeEventListener('mouseleave', mouseleaveHandler)
+						element.addEventListener('mouseenter', mouseenterHandler)
+						element.addEventListener('mouseleave', mouseleaveHandler)
 					}
+
+					const tooltipScrollParent = getScrollParent(element)
 
 					if (tooltipScrollParent) {
-						RemoveScrollListener(tooltipScrollParent)
+						AddScrollListener(tooltipScrollParent)
 					}
 
-					if (control.current === element) mouseleaveHandler()
+					const clear = () => {
+						if (mobile) {
+							element.removeEventListener('click', clickHandler)
+						} else {
+							element.removeEventListener('mouseenter', mouseenterHandler)
+							element.removeEventListener('mouseleave', mouseleaveHandler)
+						}
+
+						if (tooltipScrollParent) {
+							RemoveScrollListener(tooltipScrollParent)
+						}
+
+						if (control.current === element) mouseleaveHandler()
+					}
+
+					// @ts-ignore
+					element._st_clear = clear
 				}
 
 				// @ts-ignore
-				element._st_clear = clear
-			}
+				ref.current = element
+			},
+			{
+				get(target, prop, receiver) {
+					if (prop === 'current') {
+						return ref.current
+					}
 
-			// @ts-ignore
-			ref.current = element
-		},
+					return Reflect.get(target, prop, receiver)
+				},
+				set(target, prop, value, receiver) {
+					if (prop === 'current') {
+						// @ts-ignore
+						ref.current = value
+					}
+
+					return Reflect.set(target, prop, value, receiver)
+				}
+			}
+		),
 		[text, show]
 	)
 
-	return new Proxy(setRef, {
-		get(target, prop, receiver) {
-			if (prop === 'current') {
-				return ref.current
-			}
-
-			return Reflect.get(target, prop, receiver)
-		},
-		set(target, prop, value, receiver) {
-			if (prop === 'current') {
-				// @ts-ignore
-				ref.current = value
-			}
-
-			return Reflect.set(target, prop, value, receiver)
-		}
-	}) as TooltipRef<T>
+	return setRef as TooltipRef<T>
 }
 
 export { SingleTooltip, useTooltipRef, SingleTooltip as default }
