@@ -1,6 +1,6 @@
 {
   "name": "react-single-tooltip",
-  "version": "0.0.1-canary.6",
+  "version": "0.0.1",
   "type": "module",
   "description": "A tiny tooltip component.",
   "main": "dist/index.cjs",

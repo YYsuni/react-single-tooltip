@@ -5,15 +5,7 @@ react-single-tooltip is a opinionated tooltip component. It uses no dependencies
 To start using the library, install it in your project:
 
 ```bash
-# Work in progress
-# npm install react-single-tooltip
-# pnpm i react-single-tooltip
-# yarn i react-single-tooltip
-
-# canary
-npm i react-single-tooltip@canary
-# or pnpm i react-single-tooltip@canary
-# or yarn i react-single-tooltip@canary
+npm install react-single-tooltip
 ```
 
 Add `<SingleTooltip />` to your app, it will be the place where all your tooltip will be rendered.
@@ -38,17 +30,22 @@ function App() {
 
 ### SingleTooltip component
 
-| Name            | Type             | Default              | Description       |
-| :-------------- | :--------------- | :------------------- | :---------------- |
-| backgroundColor | string           | `rgba(0, 0, 0, 0.8)` | -                 |
-| zIndex          | number           | 99                   | -                 |
-| borderRadius    | number           | 12                   | -                 |
-| offset          | number \| string | 4                    | container padding |
+| Name            | Type             | Default                    | Description         |
+| :-------------- | :--------------- | :------------------------- | :------------------ |
+| backgroundColor | string           | `rgba(0, 0, 0, 0.8)`       | -                   |
+| zIndex          | number           | 99                         | -                   |
+| borderRadius    | number           | 12                         | -                   |
+| offset          | number \| string | 4                          | container padding   |
+| padding         | number \| string | 12                         | content padding     |
+| fontSize        | number \| string | 14                         | -                   |
+| color           | string           | `white`                    | -                   |
+| maxWidth        | number \| string | `360px`(`200px` in mobile) | -                   |
+| trangleWidth    | number           | 16                         | the bottom triangle |
+| trangleHeight   | number           | 6                          | the bottom triangle |
 
 ### useTooltip params
 
-You can dynamically show/hide the tooltip.
-
-```ts
-useTooltip(text: string, show = true)
-```
+| Name | Type    | Default   | Description |
+| :--- | :------ | :-------- | :---------- |
+| text | string  | undefined | required    |
+| show | boolean | true      | -           |
