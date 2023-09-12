@@ -252,10 +252,25 @@ function useTooltipRef<T extends HTMLElement | SVGSVGElement>(text: string, show
 							mouseenterHandler()
 
 							setTimeout(() =>
-								window.addEventListener('click', () => control.current === element && mouseleaveHandler(), {
-									once: true
-								})
+								window.addEventListener(
+									'click',
+									event => {
+										let targetPath = event.target as HTMLElement
+										do {
+											if (targetPath === element) return
+										} while ((targetPath = targetPath.parentElement!) && targetPath !== document.body)
+
+										if (control.current === element) mouseleaveHandler()
+									},
+									{
+										once: true,
+										// To prevent it from not closing when another element stops the event bubble.
+										capture: true
+									}
+								)
 							)
+						} else if (element === control.current) {
+							mouseleaveHandler()
 						}
 					}
 
