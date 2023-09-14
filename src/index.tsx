@@ -25,6 +25,7 @@ interface Props {
 	backgroundColor?: string
 	padding?: string | number
 	fontSize?: string | number
+	fontWeight?: string | number
 	maxWidth?: string | number
 	color?: string
 	zIndex?: number
@@ -41,6 +42,7 @@ function SingleTooltip({
 	offset = 4,
 	padding = 12,
 	fontSize = 14,
+	fontWeight = 400,
 	color = 'white',
 	maxWidth,
 	trangleWidth = 16,
@@ -149,7 +151,7 @@ function SingleTooltip({
 		<div className='single-tooltip' style={{ ...style_amend, zIndex, position: 'fixed', padding: offset }}>
 			<div
 				ref={textRef}
-				style={{ ...textStyle, backgroundColor, borderRadius, padding, fontSize, color, maxWidth }}
+				style={{ ...textStyle, backgroundColor, borderRadius, padding, fontSize, color, maxWidth, fontWeight }}
 				className='single-tooltip--text'>
 				{text}
 			</div>

@@ -38,6 +38,7 @@ function App() {
 | offset          | number \| string | 4                          | container padding   |
 | padding         | number \| string | 12                         | content padding     |
 | fontSize        | number \| string | 14                         | -                   |
+| fontWeight      | number \| string | 400                        | -                   |
 | color           | string           | `white`                    | -                   |
 | maxWidth        | number \| string | `360px`(`200px` in mobile) | -                   |
 | trangleWidth    | number           | 16                         | the bottom triangle |
