@@ -59,6 +59,7 @@ function SingleTooltip({
 
 	useEffect(() => {
 		if (control.init) reportError('SingleTooltip can only be initialized once!')
+		AddScrollListener(window)
 
 		const setStyle = (s: React.CSSProperties) => {
 			_setStyle(s)
@@ -211,7 +212,6 @@ function RemoveScrollListener(element: HTMLElement) {
 		}
 	}
 }
-AddScrollListener(window)
 
 interface TooltipRef<T> {
 	(element: T | null): void
